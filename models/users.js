@@ -25,24 +25,20 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       this.hasMany(models.Posts, {
         foreignKey: "userId",
-        sourceKey: "userId",
+        sourceKey: "id",
       });
       this.hasMany(models.Comments, {
         foreignKey: "userId",
-        sourceKey: "userId",
+        sourceKey: "id",
       });
       this.hasMany(models.PostLikes, {
         foreignKey: "userId",
-        sourceKey: "userId",
+        sourceKey: "id",
       });
     }
   }
   Users.init(
     {
-      userId: {
-        primaryKey: true,
-        type: DataTypes.INTEGER,
-      },
       email: DataTypes.STRING,
       nickname: DataTypes.STRING,
       password: DataTypes.STRING,

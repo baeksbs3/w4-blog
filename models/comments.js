@@ -20,21 +20,16 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       this.belongsTo(models.Users, {
         foreignKey: "userId",
-        targetKey: "userId",
+        targetKey: "id",
       });
       this.belongsTo(models.Posts, {
         foreignKey: "postId",
-        targetKey: "postId",
+        targetKey: "id",
       });
     }
   }
   Comments.init(
     {
-      commentId: {
-        primaryKey: true,
-        type: DataTypes.INTEGER,
-      },
-
       comment: DataTypes.STRING,
     },
     {

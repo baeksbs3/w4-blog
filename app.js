@@ -1,18 +1,14 @@
-const dotenv = require("dotenv");
 const express = require("express");
-const morgan = require("morgan");
+const indexRouter = require("./routes/indexRoutes");
 const app = express();
 const port = 3010;
 const { sequelize } = require("./models");
-// const indexRouter = require("./routes");
-// const connect = require("./schemas");
-// connect();
+const cookieParser = require("cookie-parser");
 
-// app.use(express.json());
-// app.use(morgan("dev"));
-// app.use(urlencoded());
-
-// app.use("/api", indexRouter);
+require("dotenv").config();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 sequelize
   .sync({ force: true })
@@ -23,9 +19,7 @@ sequelize
     console.error(err);
   });
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
+app.use("/api", indexRouter);
 
 app.listen(port, () => {
   console.log(port, "포트로 서버가 열렸어요!");

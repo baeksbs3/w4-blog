@@ -24,24 +24,20 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       this.belongsTo(models.Users, {
         foreignKey: "userId",
-        targetKey: "userId",
+        targetKey: "id",
       });
       this.hasMany(models.Comments, {
         foreignKey: "postId",
-        sourceKey: "postId",
+        sourceKey: "id",
       });
       this.hasMany(models.PostLikes, {
         foreignKey: "postId",
-        sourceKey: "postId",
+        sourceKey: "id",
       });
     }
   }
   Posts.init(
     {
-      postId: {
-        primaryKey: true,
-        type: DataTypes.INTEGER,
-      },
       title: DataTypes.STRING,
       contents: DataTypes.STRING,
     },
