@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { Users } = require("../models");
-const authMiddleware = require("../middlewares/login_auth");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 router.post("/signup", async (req, res) => {
   const { nickname, email, password, confirmPassword } = req.body;
@@ -57,4 +58,27 @@ router.post("/signup", async (req, res) => {
   }
 });
 
+// 로그인 기능 구현
+router.post("/login", async (req, res) => {
+  const { nickname, password } = req.body;
+  try {
+    const user = await Users.findOne({ where: { nickname: nickname } });
+    res.status(200).send({ message: "로그인 완료" });
+
+    if (!user || password !== user.password) {
+      res
+        .status(412)
+        .send({ errorMessage: "닉네임 또는 비밀번호가 잘못되었습니다" });
+      return;
+    }
+
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET_KEY);
+    console.log(token);
+    return res.status(200).json({
+      token: token,
+    });
+  } catch (error) {
+    res.status(500).send({ errorMessage: "알수없는 오류 발생" });
+  }
+});
 module.exports = router;
