@@ -7,7 +7,6 @@ const authMiddleware = require("../middlewares/login_auth");
 router.post("/", authMiddleware, async (req, res) => {
   const { title, contents } = req.body;
   const user = res.locals.user;
-  console.log(user);
   if (title == "") {
     res.status(412).send({ erorrMessage: "제목을 입력하세요" });
     return;
@@ -31,6 +30,7 @@ router.post("/", authMiddleware, async (req, res) => {
 //게시글 수정
 router.put("/:postId", authMiddleware, async (req, res) => {
   const { postId } = req.params;
+  const user = res.locals.user;
   const { title, contents } = req.body;
   const updatePost = await Posts.findOne({ where: { id: postId } });
 
@@ -60,6 +60,7 @@ router.put("/:postId", authMiddleware, async (req, res) => {
 //게시글 삭제
 router.delete("/:postId", authMiddleware, async (req, res) => {
   const { postId } = req.params;
+  const user = res.locals.user;
   const deletePost = await Posts.findOne({ where: { id: postId } });
   if (!deletePost) {
     res.status(404).send({ erorrMessage: "존재하지 않는 게시글 입니다" });
@@ -95,6 +96,49 @@ router.get("/:postId", async (req, res) => {
       attributes: { exclude: ["password", "email"] },
     });
     res.status(200).send({ post });
+  } catch (error) {
+    res.status(500).send({ erorrMessage: "알수없는 오류 발생" });
+  }
+});
+
+//로그인 한 유저가 좋아요한 게시글 조회 게시글
+router.get("/like", authMiddleware, async (res, req) => {});
+
+//로그인 한 유저만 게시글 좋아요 등록, 취소
+
+router.put("/:postId/like", authMiddleware, async (req, res) => {
+  const user = res.locals.user;
+  const { postId } = req.params;
+  const post = await Posts.findOne({ where: { id: postId } });
+
+  if (!post) {
+    res.status(404).send({ erorrMessage: "게시글이 존재하지 않습니다" });
+    return;
+  }
+
+  try {
+    const postLike = await PostLikes.create({
+      postId: postId,
+      userId: user.id,
+    });
+    let count = post.likeCount;
+    if (!count) {
+      await Posts.update(
+        {
+          likeCount: parseInt(count + 1),
+        },
+        { where: { id: postId } }
+      );
+      res.status(201).send({ message: "좋아요 완료" });
+    } else if (count === 1) {
+      await Posts.update(
+        {
+          likeCount: parseInt(count - 1),
+        },
+        { where: { id: postId } }
+      );
+      res.status(201).send({ message: "좋아요 취소" });
+    }
   } catch (error) {
     res.status(500).send({ erorrMessage: "알수없는 오류 발생" });
   }
