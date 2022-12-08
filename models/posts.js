@@ -40,6 +40,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       title: DataTypes.STRING,
       contents: DataTypes.STRING,
+      likeCount: DataTypes.INTEGER,
     },
     {
       sequelize,

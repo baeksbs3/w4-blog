@@ -63,7 +63,6 @@ router.post("/login", async (req, res) => {
   const { nickname, password } = req.body;
   try {
     const user = await Users.findOne({ where: { nickname: nickname } });
-    res.status(200).send({ message: "로그인 완료" });
 
     if (!user || password !== user.password) {
       res
@@ -73,8 +72,9 @@ router.post("/login", async (req, res) => {
     }
 
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET_KEY);
-    console.log(token);
+    console.log("token:", token);
     return res.status(200).json({
+      message: "로그인 완료",
       token: token,
     });
   } catch (error) {
