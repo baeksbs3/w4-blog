@@ -3,10 +3,32 @@ const router = express.Router();
 const { Posts, Users, PostLikes } = require("../models");
 const authMiddleware = require("../middlewares/login_auth");
 
+//로그인 한 유저가 좋아요한 게시글 조회 게시글
+router.get("/like", authMiddleware, async (req, res) => {
+  const user = res.locals.user;
+  const posts = await PostLikes.findAll({
+    attributes: { exclude: ["id"] },
+    include: [
+      {
+        model: Posts,
+        attributes: ["title", "contents", "likeCount"],
+        order: [["likeCount", "DESC"]],
+      },
+      {
+        model: Users,
+        attributes: ["nickname"],
+      },
+    ],
+    where: { userId: user.id },
+  });
+  res.json({ posts });
+});
+
 // 게시글 작성
 router.post("/", authMiddleware, async (req, res) => {
   const { title, contents } = req.body;
   const user = res.locals.user;
+
   if (title == "") {
     res.status(412).send({ erorrMessage: "제목을 입력하세요" });
     return;
@@ -101,9 +123,6 @@ router.get("/:postId", async (req, res) => {
   }
 });
 
-//로그인 한 유저가 좋아요한 게시글 조회 게시글
-router.get("/like", authMiddleware, async (res, req) => {});
-
 //로그인 한 유저만 게시글 좋아요 등록, 취소
 
 router.put("/:postId/like", authMiddleware, async (req, res) => {
@@ -117,12 +136,16 @@ router.put("/:postId/like", authMiddleware, async (req, res) => {
   }
 
   try {
-    const postLike = await PostLikes.create({
-      postId: postId,
-      userId: user.id,
-    });
+    // const postLike = await PostLikes.create({
+    //   postId: postId,
+    //   userId: user.id,
+    // });
     let count = post.likeCount;
     if (!count) {
+      const postLike = await PostLikes.create({
+        postId: postId,
+        userId: user.id,
+      });
       await Posts.update(
         {
           likeCount: parseInt(count + 1),
@@ -137,6 +160,9 @@ router.put("/:postId/like", authMiddleware, async (req, res) => {
         },
         { where: { id: postId } }
       );
+      await PostLikes.destroy({
+        where: { postId },
+      });
       res.status(201).send({ message: "좋아요 취소" });
     }
   } catch (error) {
