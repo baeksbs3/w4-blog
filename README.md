@@ -7,4 +7,4 @@
 nodejs, express, mysql, JWT, sequelize
 
 ## ERD
-![Screenshot](w4-blog-ERD.png)
+<img width="541" alt="w4-blog-ERD" src="https://user-images.githubusercontent.com/116314838/206906116-1a6bcd16-3a65-4dd9-b3c8-44fbc7106e7f.png">
